@@ -58,3 +58,56 @@ function mudarTela(view) {
        renderizarLista();
    }
 }
+function adicionarEvento(e) {
+   e.preventDefault();
+   const novo = {
+       id: Date.now(),
+       titulo: document.getElementById('titulo').value.trim(),
+       tipo: document.getElementById('tipo').value,
+       data: document.getElementById('data').value,
+       local: document.getElementById('local').value.trim(),
+       descricao: document.getElementById('descricao').value.trim(),
+       status: "Agendado"
+   };
+   eventos.push(novo);
+   alert('Cadastrado com sucesso!');
+   mudarTela('eventos');
+}
+function renderizarLista() {
+   const container = document.getElementById('lista-eventos');
+   if (!container) return;
+   container.innerHTML = '';
+   const termo = document.getElementById('busca').value.toLowerCase();
+   const filtrados = eventos.filter(ev => ev.titulo.toLowerCase().includes(termo));
+   if (filtrados.length === 0) {
+       container.innerHTML = '<p class="text-muted">Nenhum evento encontrado.</p>';
+       return;
+   }
+   filtrados.forEach(ev => {
+       const div = document.createElement('div');
+       div.className = 'border p-3 mb-2 rounded bg-light';
+       div.innerHTML = `
+<h5>${ev.titulo} <span class="badge bg-secondary">${ev.tipo}</span> <span class="badge ${ev.status === 'Realizado' ? 'bg-success' : 'bg-warning text-dark'}">${ev.status}</span></h5>
+<p class="mb-1">${ev.descricao}</p>
+<small class="text-muted">Data: ${ev.data} | Local: ${ev.local}</small>
+<div class="mt-2">
+<button class="btn btn-sm btn-success me-1" onclick="alternarStatus(${ev.id})">${ev.status === 'Realizado' ? 'Desmarcar' : 'Realizar'}</button>
+<button class="btn btn-sm btn-danger" onclick="removerEvento(${ev.id})">Excluir</button>
+</div>
+       `;
+       container.appendChild(div);
+   });
+}
+function alternarStatus(id) {
+   const ev = eventos.find(i => i.id === id);
+   if (ev) {
+       ev.status = ev.status === 'Realizado' ? 'Agendado' : 'Realizado';
+       renderizarLista();
+   }
+}
+function removerEvento(id) {
+   if (confirm('Deseja excluir?')) {
+       eventos = eventos.filter(i => i.id !== id);
+       renderizarLista();
+   }
+}
